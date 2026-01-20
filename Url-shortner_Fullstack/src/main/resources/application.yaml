@@ -1,3 +1,16 @@
 spring:
   application:
     name: url-shortner
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/urlshortnerdb
+    username: root
+    password: satvik@123
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
