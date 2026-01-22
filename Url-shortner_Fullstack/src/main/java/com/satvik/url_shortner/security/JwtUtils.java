@@ -1,0 +1,73 @@
+package com.satvik.url_shortner.security;
+
+import com.satvik.url_shortner.service.UserDetailsImpl;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Value;
+
+import javax.crypto.SecretKey;
+import java.security.Key;
+import java.util.Date;
+import java.util.stream.Collectors;
+
+public class JwtUtils {
+
+    @Value("${jwt.secret}")
+    private String jwtSecret;
+    @Value("${jwt.expiration}")
+    private String expiration;
+
+    public String getJwtFromHeader(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if(header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
+        return null;
+    }
+
+    public String generateToken(UserDetailsImpl user) {
+        String username = user.getUsername();
+        String roles = user.getAuthorities().stream()
+                .map(authority -> authority.getAuthority())
+                .collect(Collectors.joining(","));
+
+        return Jwts.builder()
+                .subject(username)
+                .claim("roles", roles)
+                .issuedAt(new Date())
+                .expiration(new Date(new Date().getTime() + expiration))
+                .signWith(key())
+                .compact();
+
+    }
+
+    public String getUsernamFromToken(String token) {
+        return Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build().parseSignedClaims(token)
+                .getPayload().getSubject();
+    }
+
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser()
+                    .verifyWith((SecretKey) key())
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        } catch (JwtException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private Key key() {
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+    }
+}

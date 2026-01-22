@@ -32,12 +32,12 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     public static UserDetailsImpl build(User user){
-        GrantedAuthority authority = new SimpleGrantedAuthority(user.getRole());
+        GrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + user.getRole());
         return new UserDetailsImpl(
                 user.getId(),
                 user.getUsername(),
-                user.getPassword(),
                 user.getEmail(),
+                user.getPassword(),
                 Collections.singletonList(authority)
         );
     }
@@ -48,7 +48,7 @@ public class UserDetailsImpl implements UserDetails {
     }
 
     @Override
-    public @Nullable String getPassword() {
+    public String getPassword() {
         return password;
     }
 
@@ -56,4 +56,25 @@ public class UserDetailsImpl implements UserDetails {
     public String getUsername() {
         return username;
     }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
 }

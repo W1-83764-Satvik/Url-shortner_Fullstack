@@ -14,3 +14,6 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
     show-sql: true
+
+jwt.secret: 4j0lnDOjBHicIHRJrziIlge94Tms0ZoGrKe7X_-OH9Nkw3ANCHSOWbnGM3qRWU0I6c40R-fogj_bG_1ygy6uHg
+jwt.expiration: 172800000
