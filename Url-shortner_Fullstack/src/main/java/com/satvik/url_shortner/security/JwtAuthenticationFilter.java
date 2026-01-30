@@ -1,6 +1,5 @@
 package com.satvik.url_shortner.security;
 
-import com.satvik.url_shortner.service.UserDetailsImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +9,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -34,7 +32,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = jwtUtils.getJwtFromHeader(request);
 
             if(token != null && jwtUtils.validateToken(token)) {
-                String username = jwtUtils.getUsernamFromToken(token);
+                String username = jwtUtils.getUsernameFromToken(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
                 if(userDetails != null) {
@@ -45,10 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
-            filterChain.doFilter(request, response);
         }
-
-
+        filterChain.doFilter(request, response);
     }
 }
