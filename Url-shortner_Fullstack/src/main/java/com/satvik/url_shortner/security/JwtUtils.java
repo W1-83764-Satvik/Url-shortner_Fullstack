@@ -7,18 +7,20 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
 import java.util.Date;
 import java.util.stream.Collectors;
 
+@Component
 public class JwtUtils {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
     @Value("${jwt.expiration}")
-    private String expiration;
+    private Long expiration;
 
     public String getJwtFromHeader(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
@@ -29,20 +31,20 @@ public class JwtUtils {
     }
 
     public String generateToken(UserDetailsImpl user) {
-        String username = user.getUsername();
+
         String roles = user.getAuthorities().stream()
-                .map(authority -> authority.getAuthority())
+                .map(a -> a.getAuthority())
                 .collect(Collectors.joining(","));
 
         return Jwts.builder()
-                .subject(username)
+                .subject(user.getUsername())
                 .claim("roles", roles)
                 .issuedAt(new Date())
-                .expiration(new Date(new Date().getTime() + expiration))
+                .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(key())
                 .compact();
-
     }
+
 
     public String getUsernameFromToken(String token) {
         return Jwts.parser()
